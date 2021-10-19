@@ -1,8 +1,10 @@
+//Grupo: Antonio Mello Babo, Enzo Maneira, Lucas Benicio Lima, Stefano Giordano
 
 var drawing = {
   points: [],
   rect: [],
-  triangle:[]
+  triangle:[],
+  ellipse:[]
 };
 
 
@@ -22,14 +24,17 @@ var drawing = {
     let color = _("#pen-color").value;
     fill(color);
     stroke(color);
+    
 
     switch (type){
       case "pencil":
         line(pmouseX, pmouseY, mouseX, mouseY);
-        drawing.points.push([pmouseX, pmouseY, mouseX, mouseY])
+        strokeWeight(7);
+        drawing.points.push([pmouseX, pmouseY, mouseX, mouseY]);
         break;
       case "brush":
         ellipse(mouseX, mouseY, size, size);
+        drawing.ellipse.push([pmouseX, pmouseY, size, size]);
         break;
     }
   }
@@ -37,17 +42,23 @@ var drawing = {
   function mousePressed() {
     let type = FindBrushType();
     let size = parseInt(_("#pen-size").value);
-    console.log(size)
+    let color = _("#pen-color").value;
 
     switch (type){
       case "rectangle":
         rectMode(CENTER);
-        rect(mouseX, mouseY, 30+(size *1.5), 50+(size *1.5));    
+        rect(mouseX, mouseY, 30+(size *3), 50+(size *3));    
         drawing.rect.push([mouseX, mouseY, 50, 50])   
         break;
       case "triangle":
-        triangle(mouseX + (size * 5), mouseY, mouseX - 170 , mouseY, mouseX-85+ (size * 2.5) , mouseY-100 - (size*5)) ;
-        drawing.triangle.push([mouseX + (size * 5), mouseY, mouseX - 170 , mouseY, mouseX-85+ (size * 2.5) , mouseY-100 - (size*5)])   
+        triangle(mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)) ;
+        drawing.triangle.push([mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)])   
+        break;
+      case "circle":
+        fill(color);
+        stroke(color)
+        ellipse(mouseX, mouseY,size + 60,size + 60);
+        drawing.ellipse.push([pmouseX, pmouseY, size, size]);
         break;
     }
 
@@ -88,6 +99,9 @@ var drawing = {
     let json = JSON.parse(str);
 
     for (let i = 0; i < json.points.length; i++){
+      let color = _("#pen-color").value;
+      fill(color);
+      stroke(color);
       line(json.points[i][0], json.points[i][1], json.points[i][2], json.points[i][3]); 
      }
 
@@ -97,6 +111,10 @@ var drawing = {
 
      for (let i = 0; i < json.triangle.length; i++){
       triangle(json.triangle[i][0], json.triangle[i][1], json.triangle[i][2], json.triangle[i][3], json.triangle[i][4],json.triangle[i][5]); 
+     }
+
+     for (let i = 0; i < json.ellipse.length; i++){
+      ellipse(json.ellipse[i][0], json.ellipse[i][1], json.ellipse[i][2], json.ellipse[i][3]); 
      }
   }
 
@@ -110,6 +128,8 @@ var drawing = {
             return "triangle"
         case _("#rectangle").checked:
               return "rectangle"
+        case _("#circle").checked:
+          return "circle"
       }
 
   }
