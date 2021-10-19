@@ -31,28 +31,35 @@ var drawing = {
       case "brush":
         ellipse(mouseX, mouseY, size, size);
         break;
-      case "triangle":
-        background(255);
-        triangle(mouseX, mouseY, 110, mouseX-10, mouseY+11, 110);
-        drawing.triangle.push([mouseX, mouseY, 110, mouseX-10, mouseY+11, 110])   
-        break;
     }
   }
 
   function mousePressed() {
     let type = FindBrushType();
+    let size = parseInt(_("#pen-size").value);
+    console.log(size)
 
     switch (type){
       case "rectangle":
         rectMode(CENTER);
-        rect(mouseX, mouseY, 50, 50);    
+        rect(mouseX, mouseY, 30+(size *1.5), 50+(size *1.5));    
         drawing.rect.push([mouseX, mouseY, 50, 50])   
         break;
+      case "triangle":
+        triangle(mouseX + (size * 5), mouseY, mouseX - 170 , mouseY, mouseX-85+ (size * 2.5) , mouseY-100 - (size*5)) ;
+        drawing.triangle.push([mouseX + (size * 5), mouseY, mouseX - 170 , mouseY, mouseX-85+ (size * 2.5) , mouseY-100 - (size*5)])   
+        break;
     }
+
   }
 
   _("#reset-canvas").addEventListener("click", function(){
     background(255);
+    drawing = {
+      points: [],
+      rect: [],
+      triangle:[]
+    }
   });
   _("#save-canvas").addEventListener("click",function(){
     saveCanvas(canvas, "sketch", "png");
@@ -86,6 +93,10 @@ var drawing = {
 
     for (let i = 0; i < json.rect.length; i++){
         rect(json.rect[i][0], json.rect[i][1], json.rect[i][2], json.rect[i][3]);   
+     }
+
+     for (let i = 0; i < json.triangle.length; i++){
+      triangle(json.triangle[i][0], json.triangle[i][1], json.triangle[i][2], json.triangle[i][3], json.triangle[i][4],json.triangle[i][5]); 
      }
   }
 
