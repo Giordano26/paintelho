@@ -1,10 +1,11 @@
 //Grupo: Antonio Mello Babo, Enzo Maneira, Lucas Benicio Lima, Stefano Giordano
 
-var drawing = {
-  points: [],
-  rect: [],
-  triangle:[],
-  ellipse:[]
+var saveJson = {
+  pontos: [],
+  retas: [],
+  retangulos: [],
+  triangulos:[],
+  circulos:[]
 };
 
 
@@ -12,8 +13,10 @@ var drawing = {
     return document.querySelector(selector);
   }
 
+  
+
   function setup(){
-    let canvas = createCanvas(1250, 600);
+    let canvas = createCanvas(1280, 620);
     canvas.parent("canvas-wrapper");
     background(255);
   }
@@ -28,13 +31,24 @@ var drawing = {
 
     switch (type){
       case "pencil":
+        color =  _("#pen-color").value;
         line(pmouseX, pmouseY, mouseX, mouseY);
         strokeWeight(7);
-        drawing.points.push([pmouseX, pmouseY, mouseX, mouseY]);
+        saveJson.pontos.push({
+          "nome": "loPuentoFatale",
+			    "coord": [[pmouseX, pmouseY], [mouseX, mouseY]],
+			    "cor": [color],
+        })
         break;
       case "brush":
+        color =  _("#pen-color").value;
         ellipse(mouseX, mouseY, size, size);
-        drawing.ellipse.push([pmouseX, pmouseY, size, size]);
+        saveJson.circulos.push({
+          "nome": "loCirculoFatale",
+			    "centro": [mouseX,mouseY],
+          "raio": size,
+			    "cor": [color],
+        })
         break;
     }
   }
@@ -44,39 +58,67 @@ var drawing = {
     let size = parseInt(_("#pen-size").value);
     let color = _("#pen-color").value;
 
-    switch (type){
-      case "rectangle":
-        rectMode(CENTER);
-        rect(mouseX, mouseY, 30+(size *3), 50+(size *3));    
-        drawing.rect.push([mouseX, mouseY, 50, 50])   
-        break;
-      case "triangle":
-        triangle(mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)) ;
-        drawing.triangle.push([mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)])   
-        break;
-      case "circle":
-        fill(color);
-        stroke(color)
-        ellipse(mouseX, mouseY,size + 60,size + 60);
-        drawing.ellipse.push([pmouseX, pmouseY, size, size]);
-        break;
-    }
+    if (mouseY > 0 ){
+      switch (type){
+        case "rectangle":
+          color = _("#pen-color").value;
+          fill(color);
+          stroke(color)
+          rectMode(CENTER);
+          rect(mouseX, mouseY, 30+(size *3), 30+(size *3));    
+
+          saveJson.retangulos.push({
+            "nome": "loRetanguloBendito",
+            "pontos": [[mouseX,mouseY], [30+(size *3), 30+(size *3)]],
+            "cor": [color]
+          })
+          break;
+        case "triangle":
+          color = _("#pen-color").value;
+          fill(color);
+          stroke(color)
+          triangle(mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)) ;
+          drawing.triangle.push([mouseX + (size * 2.5), mouseY, mouseX - 85 , mouseY, mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)])   
+          
+          saveJson.triangulos.push({
+            "nome": "loTrianguloMaligno",
+            "pontos": [[mouseX + (size * 2.5), mouseY], [mouseX - 85 , mouseY], [mouseX-42+ (size * 1.25) , mouseY-50 - (size*2)]],
+            "cor": color
+          })
+          break;
+        case "circle":
+          color = _("#pen-color").value;
+          fill(color);
+          stroke(color)
+          ellipse(mouseX, mouseY,size + 60,size + 60);
+          
+          saveJson.circulos.push({
+            "nome": "loCirculoFatale",
+            "centro": [mouseX,mouseY],
+            "raio": size + 60,
+            "cor": [color],
+          })
+          break;
+      }
+  }
 
   }
 
   _("#reset-canvas").addEventListener("click", function(){
     background(255);
-    drawing = {
-      points: [],
-      rect: [],
-      triangle:[]
+     saveJson = {
+      pontos: [],
+      retas: [],
+      retangulos: [],
+      triangulos:[],
+      circulos:[]
     }
   });
   _("#save-canvas").addEventListener("click",function(){
     saveCanvas(canvas, "sketch", "png");
   });
   _("#save-json").addEventListener("click",function(){
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(drawing));
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveJson));
     var dlAnchorElem = document.getElementById('downloadAnchorElem');
     dlAnchorElem.setAttribute("href", dataStr);
     dlAnchorElem.setAttribute("download", "backup.json");
@@ -98,23 +140,32 @@ var drawing = {
     let str = event.target.result;
     let json = JSON.parse(str);
 
-    for (let i = 0; i < json.points.length; i++){
-      let color = _("#pen-color").value;
-      fill(color);
-      stroke(color);
-      line(json.points[i][0], json.points[i][1], json.points[i][2], json.points[i][3]); 
+    
+
+    for (let i = 0; i < json.pontos.length; i++){
+      strokeWeight(7);
+      fill(json.pontos[i].cor);
+      stroke(json.pontos[i].cor);
+      line(json.pontos[i].coord[0][0], json.pontos[i].coord[0][1], json.pontos[i].coord[1][0], json.pontos[i].coord[1][1]); 
      }
 
-    for (let i = 0; i < json.rect.length; i++){
-        rect(json.rect[i][0], json.rect[i][1], json.rect[i][2], json.rect[i][3]);   
+    for (let i = 0; i < json.circulos.length; i++){
+      fill(json.circulos[i].cor);
+      stroke(json.circulos[i].cor);
+      ellipse(json.circulos[i].centro[0], json.circulos[i].centro[1], json.circulos[i].raio, json.circulos[i].raio);   
      }
 
-     for (let i = 0; i < json.triangle.length; i++){
-      triangle(json.triangle[i][0], json.triangle[i][1], json.triangle[i][2], json.triangle[i][3], json.triangle[i][4],json.triangle[i][5]); 
+     for (let i = 0; i < json.retangulos.length; i++){
+      fill(json.retangulos[i].cor);
+      stroke(json.retangulos[i].cor);
+      rect(json.retangulos[i].pontos[0][0], json.retangulos[i].pontos[0][1], json.retangulos[i].pontos[1][0], json.retangulos[i].pontos[1][1]);   
      }
 
-     for (let i = 0; i < json.ellipse.length; i++){
-      ellipse(json.ellipse[i][0], json.ellipse[i][1], json.ellipse[i][2], json.ellipse[i][3]); 
+     for (let i = 0; i < json.triangulos.length; i++){
+      fill(json.triangulos[i].cor);
+      stroke(json.triangulos[i].cor);
+
+      triangle(json.triangulos[i].pontos[0][0], json.triangulos[i].pontos[0][1], json.triangulos[i].pontos[1][0], json.triangulos[i].pontos[1][1], json.triangulos[i].pontos[2][0],json.triangulos[i].pontos[2][1]); 
      }
   }
 

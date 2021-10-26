@@ -18,13 +18,16 @@ body {
   font-family:"Raleway", sans-serif;
 }
 .app .controls {
-  height:50px;
+  height:65px;
   display:flex;
   align-items:center;
   background:#ddd;
   padding:0px 10px;
-  width: 1250px;
+  width: 1280px;
+  margin-bottom: 10px;
+  border-radius: 10px;
 }
+
 .app .controls .title {
   font-weight:600;
   color:#222;
@@ -63,5 +66,6 @@ body {
   padding:5px 10px;
   cursor:pointer;
 }
-
-
+canvas {
+  border-radius: 10px;
+}
